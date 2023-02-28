@@ -5,9 +5,15 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND noninteractive
 
 # apt-get update and install global requirements
-RUN apt-get clean all && \
-    apt-get update && \
-    apt-get upgrade -y && \
+RUN touch /etc/apt/apt.conf.d/99fixbadproxy \
+    && echo "Acquire::http::Pipeline-Depth 0;" >> /etc/apt/apt.conf.d/99fixbadproxy \
+    && echo "Acquire::http::No-Cache true;" >> /etc/apt/apt.conf.d/99fixbadproxy \
+    && echo "Acquire::BrokenProxy true;" >> /etc/apt/apt.conf.d/99fixbadproxy \
+    && apt-get update -o Acquire::CompressionTypes::Order::=gz \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get update -y \
+    && apt-get upgrade -y && \
     apt-get install -y  \
         autoconf \
         autogen \
